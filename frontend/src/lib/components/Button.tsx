@@ -8,7 +8,7 @@ export default function Button({
     children: React.ReactNode,
 }) {
     return (
-        <button onClick={onClick} className="py-4 px-8 bg-primary-400 text-2xl rounded-[20px] shadow-">
+        <button onClick={onClick} className="py-4 px-1 grow bg-accent border-accent text-white border-1 text-2xl rounded-[20px] shadow-">
             {children}
         </button>
     )

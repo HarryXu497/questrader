@@ -8,12 +8,12 @@ export default function Input(
 ) {
   const { ref, prefixContent, ...otherProps } = props;
   return (
-    <div className="border-1 rounded-[20px] border-[#8B8B8B] flex flex-row gap-2 items-center pl-4 focus-within:outline-2 outline-accent">
+    <div className={`border-1 rounded-[20px] border-[#8B8B8B] flex flex-row gap-2 items-center ${prefixContent && 'pl-4'} focus-within:outline-2 outline-accent`}>
       {prefixContent}
       <input
         ref={ref}
         {...otherProps}
-        className="pr-4 pl-1 py-3 w-full rounded-[20px] outline-none"
+        className={`pr-4 ${prefixContent ? 'pl-1' : 'pl-4'} py-3 w-full rounded-[20px] outline-none`}
       />
     </div>
   );

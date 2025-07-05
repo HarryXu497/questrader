@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./HiloGraph.module.css"
+import styles from "./HiloGraph.module.css";
 
 import * as React from "react";
 import { useEffect } from "react";

@@ -4,10 +4,12 @@ import Button from "@/lib/components/Button";
 import Card from "@/lib/components/Card";
 import FeedCard from "@/lib/components/FeedCard";
 import HiloOpenClose from "@/lib/components/HiloGraph/HiloGraph";
+import Modal from "@/lib/components/Modal";
 import PageCard from "@/lib/components/PageCard";
 import StockModal from "@/lib/components/StockModal";
 import db from "@/lib/firebase/firestore";
 import dateFormatter from "@/lib/utils/dateFormatter";
+import { RiPauseLine, RiPlayLine } from "@remixicon/react";
 import {
   collection,
   doc,
@@ -29,6 +31,10 @@ export default function Page({
   params: Promise<{ levelId: string }>;
 }) {
   const { levelId } = use(params);
+  const isTutorial = levelId === "1";
+  const [tutorialState, setTutorialState] = useState<number | null>(
+    isTutorial ? 0 : null
+  );
   const [startDate, setStartDate] = useState<null | Date>(null);
   const [endDate, setEndDate] = useState<null | Date>(null);
   const [day, setDay] = useState(0);
@@ -36,8 +42,10 @@ export default function Page({
   const [articles, setArticles] = useState<Article[] | null>([]);
   const [pushedArticles, setPushedArticles] = useState<Article[]>([]);
   const [stockOrder, setStockOrder] = useState<StockOrder | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [isPaused, setIsPaused] = useState<boolean>(tutorialState !== null);
 
-const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const collectionRef = collection(db, "level", levelId, "articles");
@@ -66,7 +74,7 @@ const timeoutRef = useRef<NodeJS.Timeout | null>(null);
       const startTimestamp = document.get("startDate") as Timestamp;
       const endTimestamp = document.get("endDate") as Timestamp;
       setStartDate(startTimestamp.toDate());
-      setEndDate(endTimestamp.toDate())
+      setEndDate(endTimestamp.toDate());
     });
   }, []);
 
@@ -94,35 +102,45 @@ const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   }, [day, articles, currentArticleIndex]);
 
   useEffect(() => {
-    timeoutRef.current = setInterval(() => setDay((d) => d + 7), 2000);
+    timeoutRef.current = setInterval(() => {
+      if (!isPaused) {
+        setDay((d) => d + 7);
+      }
+    }, 2000);
 
     return () => {
-        if (timeoutRef.current) {
-            clearInterval(timeoutRef.current)
-        }
+      if (timeoutRef.current) {
+        clearInterval(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
-  }, []);
+  }, [isPaused]);
 
   useEffect(() => {
     if (timeoutRef.current && startDate && endDate) {
-        const currDate = dayToDate(startDate, day);
+      const currDate = dayToDate(startDate, day);
 
-        if (currDate >= endDate) {
-            clearInterval(timeoutRef.current);
-            timeoutRef.current = null;
-        }
+      if (currDate >= endDate) {
+        clearInterval(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     }
-  }, [startDate, day, endDate])
+  }, [startDate, day, endDate]);
 
+  if (startDate === null && isTutorial) {
+    return (
+      <div className="h-[calc(100vh_-_5.375rem)] py-12 animate-pulse"></div>
+    );
+  }
 
-  if (startDate == null) {
+  if (startDate === null) {
     // TODO: loading page
     return (
-      <div className="h-[calc(100vh_-_5.125rem)] py-12 animate-pulse">
+      <div className="h-[calc(100vh_-_5.375rem)] py-12 animate-pulse">
         <section className="max-w-[72rem] min-w-[16rem] w-[80%] mx-auto h-full flex flex-row gap-5">
           <div className="h-full w-[68%]">
             <PageCard>
-                <div></div>
+              <div></div>
             </PageCard>
           </div>
           <div className="h-full flex flex-col gap-5 w-[32%]">
@@ -133,36 +151,90 @@ const timeoutRef = useRef<NodeJS.Timeout | null>(null);
                 </h2>
               </div>
             </Card>
-            <div className="grow"></div>
+            <PageCard>
+              <div className="grow"></div>
+            </PageCard>
             <div className="flex flex-row justify-between">
-              <Button
-                onClick={() => {
-                  setStockOrder({
-                    ticker: "AAPL", // TODO: fix
-                    price: 0,
-                    units: 0,
-                    type: "buy",
-                  });
-                }}
-              >
-                Buy
-              </Button>
-              <Button
-                onClick={() => {
-                  setStockOrder({
-                    ticker: "AAPL", // TODO: fix
-                    price: 0,
-                    units: 0,
-                    type: "sell",
-                  });
-                }}
-              >
-                Sell
-              </Button>
-              <Button onClick={() => {}}>Hold</Button>
+              <PageCard>
+                <Button
+                  onClick={() => {
+                    setStockOrder({
+                      ticker: "AAPL", // TODO: fix
+                      price: 0,
+                      units: 0,
+                      type: "buy",
+                    });
+                  }}
+                >
+                  Buy
+                </Button>
+              </PageCard>
+              <PageCard>
+                <Button
+                  onClick={() => {
+                    setStockOrder({
+                      ticker: "AAPL", // TODO: fix
+                      price: 0,
+                      units: 0,
+                      type: "sell",
+                    });
+                  }}
+                >
+                  Sell
+                </Button>
+              </PageCard>
+              <PageCard>
+                <Button onClick={() => {}}>Hold</Button>
+              </PageCard>
             </div>
           </div>
         </section>
+      </div>
+    );
+  }
+
+  if (tutorialState === 0) {
+    return (
+      <div className="h-[calc(100vh_-_5.375rem)] py-12">
+        <div className="flex flex-col gap-1 items-center justify-center h-full w-80 m-auto">
+          <h2 className="font-bold text-2xl text-gray-700 text-center">
+            Welcome to Questrader!
+          </h2>
+          <p className="text-lg text-gray-500 text-center">
+            Before you start learning, we'll like to show you around this
+            website.
+          </p>
+          <button
+            className="text-lg text-gray-900 text-center underline hover:cursor-pointer"
+            onClick={() => setTutorialState((s) => s! + 1)}
+          >
+            Click here to move on.
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+    if (tutorialState === 5) {
+    return (
+      <div className="h-[calc(100vh_-_5.375rem)] py-12">
+        <div className="flex flex-col gap-1 items-center justify-center h-full w-80 m-auto">
+          <h2 className="font-bold text-2xl text-gray-700 text-center">
+            Are you ready to start learning?
+          </h2>
+          <p className="text-lg text-gray-500 text-center">
+            Good luck and have fun!
+          </p>
+          <button
+            className="text-lg text-gray-900 text-center underline hover:cursor-pointer"
+            onClick={() => {
+                setTutorialState(null)
+                setIsPaused(false)
+            }}
+          >
+            Click here to <span className="font-bold">start</span>!
+          </button>
+        </div>
       </div>
     );
   }
@@ -172,32 +244,177 @@ const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   return (
     <>
-      <div className="h-[calc(100vh_-_5.125rem)] py-12">
+      <div className="h-[calc(100vh_-_5.375rem)] py-12">
         <section className="max-w-[72rem] min-w-[16rem] w-[80%] mx-auto h-full flex flex-row gap-5">
           <div className="h-full w-[68%]">
             <PageCard>
-              <HiloOpenClose />
+              {tutorialState === 1 && (
+                <div className="flex flex-col gap-1 items-center justify-center h-full w-[32rem] m-auto">
+                  <h2 className="font-bold text-xl text-gray-700 text-center">
+                    This is your stock chart
+                  </h2>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm text-gray-500 text-center">
+                      When you look at a stock chart, you'll see four key
+                      prices: <strong className="font-bold">Open</strong>,{" "}
+                      <strong className="font-bold">Close</strong>,{" "}
+                      <strong className="font-bold">High</strong>, and{" "}
+                      <strong className="font-bold">Low</strong>. These tell the
+                      story of a stock's price movement during a trading day.
+                    </p>
+                    <ul className="flex flex-col items-center text-sm text-gray-500 text-center">
+                      <li>
+                        <strong className="font-bold">Open</strong>: The price
+                        the stock starts trading at when the market opens.
+                      </li>
+                      <li>
+                        <strong className="font-bold">Close</strong>: The final
+                        price when the market closes for the day.
+                      </li>
+                      <li>
+                        <strong className="font-bold">High</strong>: The highest
+                        price the stock reached during the day.
+                      </li>
+                      <li>
+                        <strong className="font-bold">Low</strong>: The lowest
+                        price the stock hit that day.
+                      </li>
+                    </ul>
+                    <p className="text-sm text-gray-500 text-center">
+                      Together, these give a quick snapshot of how a stock moved
+                      throughout the day and they help you understand trends,
+                      volatility, and potential opportunities.
+                    </p>
+                  </div>
+                  <button
+                    className="text-sm text-gray-900 text-center underline hover:cursor-pointer"
+                    onClick={() => setTutorialState((s) => s! + 1)}
+                  >
+                    Click here to move on.
+                  </button>
+                </div>
+              )}
+              {tutorialState !== 1 && <HiloOpenClose />}
             </PageCard>
           </div>
           <div className="h-full flex flex-col gap-5 w-[32%]">
             <Card className="overflow-visible">
-              <div className="bg-white border-accent border-1 p-4 rounded-[20px]">
+              <div className="bg-white border-accent border-1 px-4 py-3 rounded-[20px] flex flex-row justify-between items-center">
                 <h2 className="font-bold text-gray-900 text-2xl">
                   {formattedDate}
                 </h2>
+                <button
+                  onClick={() =>
+                    setIsPaused((p) => (tutorialState === null ? !p : p))
+                  }
+                  disabled={tutorialState !== null}
+                  className="border-accent bg-accent p-2 border-1 block h-full aspect-square rounded-[20px] disabled:border-gray-300 disabled:bg-gray-300"
+                >
+                  {isPaused && <RiPlayLine size={24} className="text-white" />}
+                  {!isPaused && (
+                    <RiPauseLine size={24} className="text-white" />
+                  )}
+                </button>
               </div>
             </Card>
-            <div className="flex flex-col gap-4 grow-1 h-full overflow-scroll">
-                {pushedArticles.map((article) => (
-                  <div key={article.id} className="animate-pop-in">
-                    <FeedCard
-                      article={article}
-                      date={dayToDate(startDate, article.day)}
-                    />
+            <PageCard>
+              <div className="flex flex-col justify-start gap-4 grow-1 h-full overflow-scroll">
+                {tutorialState === 2 && (
+                  <div className="flex flex-col gap-1 items-center justify-center h-full p-6 pb-8">
+                    <h2 className="font-bold text-xl text-gray-700 text-center">
+                      This is your article feed
+                    </h2>
+                    <p className="text-md text-gray-500 text-center">
+                      News articles will appear here as the level progresses.
+                      Keep these articles in mind becaues they reflect real
+                      world events that could affect the stock market!
+                    </p>
+                    <button
+                      className="text-md text-gray-900 text-center underline hover:cursor-pointer"
+                      onClick={() => setTutorialState((s) => s! + 1)}
+                    >
+                      Click here to move on.
+                    </button>
                   </div>
-                ))}
-            </div>
-            <div className="flex flex-row justify-between">
+                )}
+
+                {tutorialState === 3 && (
+                  <div className="flex flex-col gap-1 items-center justify-center h-full p-6 pb-8">
+                    <h2 className="font-bold text-xl text-gray-700 text-center">
+                      The card above this text shows the current date.
+                    </h2>
+                    <p className="text-md text-gray-500 text-center">
+                      Time will progress week-by-week as the level progresses.
+                      After certain articles, the level will pause and ask you
+                      to make a decision: buy, sell, or hold. Make the best
+                      choice you can!
+                    </p>
+                    <button
+                      className="text-md text-gray-900 text-center underline hover:cursor-pointer"
+                      onClick={() => setTutorialState((s) => s! + 1)}
+                    >
+                      Click here to move on.
+                    </button>
+                  </div>
+                )}
+
+                {tutorialState === 4 && (
+                  <div className="flex flex-col gap-1 items-center justify-center h-full p-6 pb-8">
+                    <h2 className="font-bold text-xl text-gray-700 text-center">
+                      The buttons below will allow you to manage shares.
+                    </h2>
+                    <p className="text-md text-gray-500 text-center">
+                      Speaking of buying, selling, and holding, the buttons
+                      below will let you buy and sell the stocks of different
+                      companies. Holding means you will stay put with your
+                      current arrangement and not change it.
+
+                      The buttons are disabled until the level pauses and asks you to make a decision.
+                    </p>
+                    <button
+                      className="text-md text-gray-900 text-center underline hover:cursor-pointer"
+                      onClick={() => setTutorialState((s) => s! + 1)}
+                    >
+                      Click here to move on.
+                    </button>
+                  </div>
+                )}
+                {selectedArticle === null &&
+                  pushedArticles.map((article) => (
+                    <button
+                      key={article.id}
+                      className="block animate-pop-in hover:cursor-pointer w-full"
+                      onClick={() => setSelectedArticle(article)}
+                    >
+                      <div className="w-full">
+                        <FeedCard
+                          cardClassName="items-start"
+                          article={article}
+                          date={dayToDate(startDate, article.day)}
+                        />
+                      </div>
+                    </button>
+                  ))}
+                {selectedArticle !== null && (
+                  <button
+                    className="block animate-pop-in h-full hover:cursor-pointer"
+                    onClick={() => {
+                      setSelectedArticle(null);
+                    }}
+                  >
+                    <div className="w-full h-full">
+                      <FeedCard
+                        cardClassName="h-full"
+                        article={selectedArticle}
+                        truncateText={false}
+                        date={dayToDate(startDate, selectedArticle.day)}
+                      />
+                    </div>
+                  </button>
+                )}
+              </div>
+            </PageCard>
+            <div className="flex flex-row justify-between gap-5">
               <Button
                 onClick={() => {
                   setStockOrder({
