@@ -3,12 +3,11 @@ import {
   ColumnsDirective,
   GridComponent,
 } from "@syncfusion/ej2-react-grids";
-import * as React from "react";
 
 const data = [
   {
     Company: "Apple Inc.",
-    Ticker: "AAPL",
+    Ticker: "LULU",
     Shares: 50,
     PricePerShare: 195.12,
     Change: "+$1.45 (0.75%)",
@@ -93,15 +92,23 @@ const styles = `
     display:none;
 }
 
+* {
+    border-spacing: 0rem !important;
+}
+
+td {
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
+}
+
 
 `;
 
 function Table() {
- 
   return (
     <>
       <style>{styles}</style>
-      <GridComponent dataSource={data} gridLines="Default">
+      <GridComponent dataSource={data} gridLines="Default" height="100%" rowHeight={32}>
         <ColumnsDirective>
           <ColumnDirective field="Company" width="200" textAlign="Left" />
           <ColumnDirective field="Ticker" width="200" textAlign="Left" />

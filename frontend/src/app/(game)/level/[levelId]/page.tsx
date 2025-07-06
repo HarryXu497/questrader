@@ -4,7 +4,6 @@ import Button from "@/lib/components/Button";
 import Card from "@/lib/components/Card";
 import FeedCard from "@/lib/components/FeedCard";
 import HiloOpenClose from "@/lib/components/HiloGraph/HiloGraph";
-import Modal from "@/lib/components/Modal";
 import PageCard from "@/lib/components/PageCard";
 import StockModal from "@/lib/components/StockModal";
 import db from "@/lib/firebase/firestore";
@@ -50,7 +49,7 @@ export default function Page({
   const [isPaused, setIsPaused] = useState<boolean>(tutorialState !== null);
   const [decisionPending, setDecisionPending] = useState<boolean>(false);
   const [orderError, setOrderError] = useState<string | null>(null);
-
+  const [marketPrice, setMarketPrice] = useState<number | null>(null);
   const [stockData, setStockData] = useState<StockData[] | null>(null);
 
   const { isConnected, isReconnecting, sendMessage } = useWebSocket(
@@ -63,6 +62,9 @@ export default function Page({
           period: new Date(obj.x),
         }));
         setStockData(parsed);
+        if (parsed.length > 0) {
+          setMarketPrice(parsed[parsed.length - 1].close);
+        }
       },
       onClose: () => console.log("WebSocket disconnected"),
       onError: (event) => console.error("WebSocket error:", event),
@@ -114,7 +116,7 @@ export default function Page({
 
   useEffect(() => {
     if (day === null) {
-        return;
+      return;
     }
 
     const docRef = doc(db, "level", levelId);
@@ -163,7 +165,7 @@ export default function Page({
   useEffect(() => {
     timeoutRef.current = setInterval(() => {
       if (!isPaused && !decisionPending) {
-        setDay((d) => d === null ? d : d + 7);
+        setDay((d) => (d === null ? d : d + 7));
       }
     }, 1500);
 
@@ -181,7 +183,7 @@ export default function Page({
         JSON.stringify({
           start_date: formatDateTime(startDate),
           end_date: formatDateTime(dayToDate(startDate, day)),
-          ticker: "AAPL", // TODO: make dynamic
+          ticker: "LULU", // TODO: make dynamic
         })
       );
     }
@@ -225,13 +227,13 @@ export default function Page({
             <PageCard>
               <div className="grow"></div>
             </PageCard>
-        
+
             <div className="flex flex-row justify-between gap-5">
               <Button
                 disabled={!decisionPending}
                 onClick={() => {
                   setStockOrder({
-                    ticker: "AAPL", // TODO: fix
+                    ticker: "LULU", // TODO: fix
                     price: 1,
                     units: "",
                     type: "buy",
@@ -244,7 +246,7 @@ export default function Page({
                 disabled={!decisionPending}
                 onClick={() => {
                   setStockOrder({
-                    ticker: "AAPL", // TODO: fix
+                    ticker: "LULU", // TODO: fix
                     price: 1,
                     units: "",
                     type: "sell",
@@ -327,7 +329,10 @@ export default function Page({
   return (
     <>
       <div className="h-[calc(100vh_-_5.375rem)] py-12">
-        <section className="max-w-[72rem] min-w-[16rem] w-[80%] mx-auto h-full flex flex-row gap-5">
+        <h1 className="max-w-[72rem] min-w-[16rem] w-[80%] mx-auto text-2xl mb-2">
+          Level 1: Fundamental Analysis Basics
+        </h1>
+        <section className="max-w-[72rem] min-w-[16rem] w-[80%] mx-auto h-[90%] flex flex-row gap-5">
           <div className="h-full w-[68%]">
             <PageCard>
               {tutorialState === 1 && (
@@ -378,7 +383,7 @@ export default function Page({
               )}
               {tutorialState !== 1 && stockData !== null && (
                 <div className="h-full">
-                  <HiloOpenClose data={stockData} title="d" />
+                  <HiloOpenClose data={stockData} title="LULU" />
                 </div>
               )}
             </PageCard>
@@ -517,7 +522,7 @@ export default function Page({
                 disabled={!decisionPending}
                 onClick={() => {
                   setStockOrder({
-                    ticker: "AAPL", // TODO: fix
+                    ticker: "LULU", // TODO: fix
                     price: 1,
                     units: "",
                     type: "buy",
@@ -530,7 +535,7 @@ export default function Page({
                 disabled={!decisionPending}
                 onClick={() => {
                   setStockOrder({
-                    ticker: "AAPL", // TODO: fix
+                    ticker: "LULU", // TODO: fix
                     price: 1,
                     units: "",
                     type: "sell",
@@ -583,7 +588,7 @@ export default function Page({
                   }}
                 />
                 shares of {stockOrder.ticker} at
-                {/*  TODO: use mssot recent data from db */}
+                <span>{marketPrice}</span>
                 each?
               </div>
               {orderError !== null && (

@@ -2,29 +2,22 @@
 
 import styles from "./HiloGraph.module.css";
 
-import * as React from "react";
-import { useEffect } from "react";
-import * as ReactDOM from "react-dom";
 import {
+  CandleSeries,
+  Category,
   ChartComponent,
+  Crosshair,
+  DateTime,
+  ILoadedEventArgs,
+  Inject,
+  Logarithmic,
   SeriesCollectionDirective,
   SeriesDirective,
-  Inject,
-  HiloOpenCloseSeries,
-  Category,
   Tooltip,
-  DateTime,
   Zoom,
-  Logarithmic,
-  ChartTheme,
-  Crosshair,
-  ILoadedEventArgs,
-  CandleSeries,
-  TitleStyleSettingsModel,
   titleSettingsModel,
 } from "@syncfusion/ej2-react-charts";
 
-import { Browser } from "@syncfusion/ej2-base";
 import { loadChartTheme } from "./theme-color.js";
 export let zoomFactor: number;
 export let zoomPosition: number;
@@ -41,13 +34,13 @@ const HiloOpenClose = ({
   data,
   title,
   titleStyle = {
-                fontWeight: "700",
-                size: "36px",
-            }
+    fontWeight: "700",
+    size: "36px",
+  },
 }: {
   data: StockData[];
   title: string;
-  titleStyle?: titleSettingsModel
+  titleStyle?: titleSettingsModel;
 }) => {
   const loaded = (args: ILoadedEventArgs): void => {
     let chart: Element = document.getElementById("charts")!;
@@ -77,9 +70,7 @@ const HiloOpenClose = ({
               title: "Price",
               labelFormat: "n0",
               lineStyle: { width: 0 },
-              //   minimum: 40,
-              //   maximum: 140,
-              interval: 20,
+              interval: 50,
               majorTickLines: { width: 0 },
             }}
             chartArea={{ border: { width: 0 } }}
@@ -88,7 +79,7 @@ const HiloOpenClose = ({
               shared: true,
               header: "",
               format:
-                "<b>Apple Inc. (AAPL)</b> <br> High : <b>${point.high}</b> <br> Low : <b>${point.low}</b> <br> Open : <b>${point.open}</b> <br> Close : <b>${point.close}</b>",
+                "<b>Lululemon Atheletica Inc. (LULU)</b> <br> High : <b>${point.high}</b> <br> Low : <b>${point.low}</b> <br> Open : <b>${point.open}</b> <br> Close : <b>${point.close}</b>",
             }}
             width="100%"
             height="100%"
@@ -96,7 +87,6 @@ const HiloOpenClose = ({
             crosshair={{ enable: true, lineType: "Vertical" }}
             title={title}
             titleStyle={titleStyle}
-        
           >
             <Inject
               services={[

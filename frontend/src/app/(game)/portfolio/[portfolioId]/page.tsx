@@ -1,7 +1,5 @@
 "use client";
 
-import Button from "@/lib/components/Button";
-import Card from "@/lib/components/Card";
 import HiloGraph from "@/lib/components/HiloGraph/HiloGraph";
 import Input from "@/lib/components/Input";
 import PageCard from "@/lib/components/PageCard";
@@ -28,7 +26,7 @@ export default function Page({
   const [day, setDay] = useState<number | null>(null);
   const [tickers, setTickers] = useState<string[] | null>(null);
   const [marketPrice, setMarketPrice] = useState<number | null>(null);
-  const [ticker, setTicker] = useState<string | null>("AAPL");
+  const [ticker, setTicker] = useState<string | null>("LULU");
   const [bidPrice, setBidPrice] = useState<string>("");
   const [quantity, setQuantity] = useState<string>("");
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -55,10 +53,10 @@ export default function Page({
           period: new Date(obj.x),
         }));
 
-        console.log(parsed);
-
-        setMarketPrice(parsed[parsed.length - 1].close);
-        setBidPrice(parsed[parsed.length - 1].close.toFixed(2));
+        if (parsed.length > 0) {
+          setMarketPrice(parsed[parsed.length - 1].close);
+          setBidPrice(parsed[parsed.length - 1].close.toFixed(2));
+        }
         setStockData(parsed);
       },
       onClose: () => console.log("WebSocket disconnected"),
@@ -85,11 +83,20 @@ export default function Page({
         JSON.stringify({
           start_date: formatDateTime(startDate),
           end_date: formatDateTime(dayToDate(startDate, day)),
-          ticker: ticker, // TODO: make dynamic
+          ticker: ticker,
         })
       );
     }
   }, [isConnected, startDate, day, ticker]);
+
+  useEffect(() => {
+    if (stockData === null) {
+        return;
+    }
+
+    setQuantity("");
+    setBidPrice(stockData[stockData.length - 1].close.toFixed(2));
+  }, [orderType])
 
   if (
     startDate === null ||
@@ -160,7 +167,7 @@ export default function Page({
                 onSubmit={(e) => {
                   e.preventDefault();
 
-                  if (estimatedCost !== null) {
+                  if (estimatedCost !== null && !quantity && !bidPrice) {
                     setModalOpen(true);
                   }
                 }}
@@ -175,10 +182,10 @@ export default function Page({
                   placeholder="Browse Tickers"
                 />
                 <p>
-                  Market Price: $[{marketPrice === null ? "" : marketPrice}]
+                  Market Price: ${marketPrice === null ? "" : marketPrice}
                 </p>
                 <Input
-                  placeholder="Your bid price: $[ ]"
+                  placeholder="Your bid price"
                   type="number"
                   value={bidPrice}
                   onChange={(e) => setBidPrice(e.target.value)}
@@ -189,7 +196,7 @@ export default function Page({
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                 />
-                <p>Estimated Cost: $[{estimatedCost?.toFixed(2)}]</p>
+                <p>Estimated Cost: ${estimatedCost?.toFixed(2)}</p>
                 <button className="bg-accent text-white font-bold text-[20px] w-full py-3 rounded-[20px]">
                   Review Order
                 </button>
@@ -232,8 +239,8 @@ export default function Page({
             return (
               <div className="flex flex-col gap-1">
                 <div className="flex flex-row gap-1">
-                  <span className="capitalize">{orderType}</span> <span>{quantity}</span>{" "}
-                  shares of <span>{ticker}</span> at
+                  <span className="capitalize">{orderType}</span>{" "}
+                  <span>{quantity}</span> shares of <span>{ticker}</span> at
                   <span>${bidPrice}</span>
                   each?
                 </div>

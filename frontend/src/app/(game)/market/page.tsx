@@ -6,16 +6,15 @@ import Input from "@/lib/components/Input";
 import PageCard from "@/lib/components/PageCard";
 import db from "@/lib/firebase/firestore";
 import { useWebSocket } from "@/lib/hooks/useWebSocket";
-import dayToDate from "@/lib/utils/dayToDate";
 import formatDateTime from "@/lib/utils/formatDateime";
 import { RiSearch2Line } from "@remixicon/react";
-import { doc, getDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export default function Page() {
   const startDate = new Date(2024, 0, 1);
   const [stockData, setStockData] = useState<StockData[] | null>(null);
-  const [ticker, setTicker] = useState<string>("AAPL");
+  const [ticker, setTicker] = useState<string>("LULU");
   const [tickers, setTickers] = useState<string[] | null>(null);
   useEffect(() => {
     const docRef = doc(db, "level", "1");
@@ -89,7 +88,9 @@ export default function Page() {
             </div>
           </Card>
           <PageCard>
-            <div className="flex flex-col justify-start gap-4 grow-1 h-full overflow-scroll"></div>
+            <div className="flex flex-col justify-start gap-4 grow-1 h-full overflow-scroll">
+              <h2 className="font-bold text-xl">My watchlist</h2>
+            </div>
           </PageCard>
         </div>
       </section>

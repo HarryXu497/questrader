@@ -17,7 +17,7 @@ export default function Home() {
                   src="/images/logo.svg"
                   alt="Questrader"
                 />
-                <p className="text-[20px] font-extralight">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <p className="text-[20px] font-extralight">developing good trading habits through gamification and a vision for the community</p>
             </div>
       </main>
     </>
