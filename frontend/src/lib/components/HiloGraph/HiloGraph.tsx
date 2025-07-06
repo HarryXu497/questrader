@@ -19,8 +19,11 @@ import {
   ChartTheme,
   Crosshair,
   ILoadedEventArgs,
+  CandleSeries,
+  TitleStyleSettingsModel,
+  titleSettingsModel,
 } from "@syncfusion/ej2-react-charts";
-import { chartValues } from "./financial-data.js";
+
 import { Browser } from "@syncfusion/ej2-base";
 import { loadChartTheme } from "./theme-color.js";
 export let zoomFactor: number;
@@ -28,8 +31,24 @@ export let zoomPosition: number;
 const SAMPLE_CSS = `
     .control-fluid {
 		padding: 0px !important;
-    }`;
-const HiloOpenClose = () => {
+    }
+    .control-section {
+        height: 100%;
+    }
+
+        `;
+const HiloOpenClose = ({
+  data,
+  title,
+  titleStyle = {
+                fontWeight: "700",
+                size: "36px",
+            }
+}: {
+  data: StockData[];
+  title: string;
+  titleStyle?: titleSettingsModel
+}) => {
   const loaded = (args: ILoadedEventArgs): void => {
     let chart: Element = document.getElementById("charts")!;
     chart.setAttribute("title", "");
@@ -48,7 +67,7 @@ const HiloOpenClose = () => {
             id="charts"
             load={load.bind(this)}
             loaded={loaded.bind(this)}
-            style={{ textAlign: "center" }}
+            style={{ textAlign: "center", width: "100%", height: "100%" }}
             primaryXAxis={{
               valueType: "DateTime",
               crosshairTooltip: { enable: true },
@@ -58,8 +77,8 @@ const HiloOpenClose = () => {
               title: "Price",
               labelFormat: "n0",
               lineStyle: { width: 0 },
-              minimum: 40,
-              maximum: 140,
+              //   minimum: 40,
+              //   maximum: 140,
               interval: 20,
               majorTickLines: { width: 0 },
             }}
@@ -72,13 +91,16 @@ const HiloOpenClose = () => {
                 "<b>Apple Inc. (AAPL)</b> <br> High : <b>${point.high}</b> <br> Low : <b>${point.low}</b> <br> Open : <b>${point.open}</b> <br> Close : <b>${point.close}</b>",
             }}
             width="100%"
+            height="100%"
             legendSettings={{ visible: false }}
             crosshair={{ enable: true, lineType: "Vertical" }}
-            title="AAPL Historical"
+            title={title}
+            titleStyle={titleStyle}
+        
           >
             <Inject
               services={[
-                HiloOpenCloseSeries,
+                CandleSeries,
                 Category,
                 Tooltip,
                 DateTime,
@@ -89,11 +111,11 @@ const HiloOpenClose = () => {
             />
             <SeriesCollectionDirective>
               <SeriesDirective
-                type="HiloOpenClose"
-                dataSource={chartValues}
+                type="Candle"
+                dataSource={data}
                 animation={{ enable: true }}
-                bearFillColor="#FF00FF"
-                bullFillColor="#00FFFF"
+                bearFillColor="#00F000"
+                bullFillColor="#FF0000"
                 xName="period"
                 low="low"
                 high="high"

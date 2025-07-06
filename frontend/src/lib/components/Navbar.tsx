@@ -27,7 +27,7 @@ export default function Navbar() {
               <a href="/market">Market</a>
             </li>
             <li>
-              <a href="/portfolio">Portfolio</a>
+              <a href="/portfolio/1">Portfolio</a>
             </li>
             <li>
               <a href="/level/1">Learn</a>
