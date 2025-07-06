@@ -15,8 +15,6 @@ headers = {
     "APCA-API-SECRET-KEY": os.getenv("ALPACA_API_SECRET")
 }
 
-print(headers)
-
 app = FastAPI()
 
 
@@ -64,7 +62,6 @@ async def market_endpoint(websocket: WebSocket):
         start_date = parsed.get("start_date")
         url = f"https://data.alpaca.markets/v2/stocks/bars?symbols={ticker}&timeframe=1W&start={start_date}&end={end_date}&limit=1000&adjustment=raw&feed=iex&sort=asc"
 
-        logger.debug(url)
         response = requests.get(url, headers=headers)
         input_data = response.json()
         
@@ -98,8 +95,7 @@ async def learn_endpoint(websocket: WebSocket):
         end_date = parsed.get("end_date")
         start_date = parsed.get("start_date")
         url = f"https://data.alpaca.markets/v2/stocks/bars?symbols={ticker}&timeframe=1W&start={start_date}&end={end_date}&limit=1000&adjustment=raw&feed=iex&sort=asc"
-
-        logger.debug(url)
+        
         response = requests.get(url, headers=headers)
         input_data = response.json()
 
