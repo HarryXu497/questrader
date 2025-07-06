@@ -1,6 +1,6 @@
 interface StockOrder {
     type: 'buy' | 'sell';
-    units: number;
+    units: string;
     price: number;
     ticker: string;
 }

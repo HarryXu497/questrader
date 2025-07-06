@@ -8,11 +8,9 @@ export default function Navbar() {
   const authStore = useAuthStore();
   const authenticated = authStore.user != null;
 
-  console.log(authStore.user)
-
   return (
-    <nav className="flex flex-row justify-between px-10 py-6 gap-4 border-b-2 w-full text-xl items-center border-[#EFEFEF]">
-      <div>
+    <nav className="flex flex-row justify-between px-10 py-6 gap-4 border-b-2 w-full text-xl items-center border-[#84D0ED]">
+      <div className="flex flex-row gap-6 items-center">
         <a href="/">
           <Image
             width={200}
@@ -21,33 +19,33 @@ export default function Navbar() {
             alt="Questrader"
           />
         </a>
-      </div>
 
       {authenticated && (
-        <>
-          <div className="text-accent font-bold">
-            <ul className="flex flex-row gap-8">
-              <li>
-                <a href="/level/1">Market</a>
-              </li>
-              <li>
-                <a href="/portfolio">Portfolio</a>
-              </li>
-              <li>
-                <a href="">Learn</a>
-              </li>
-            </ul>
-          </div>
+        <div className="text-accent font-bold">
+          <ul className="flex flex-row gap-8">
+            <li>
+              <a href="/market">Market</a>
+            </li>
+            <li>
+              <a href="/portfolio">Portfolio</a>
+            </li>
+            <li>
+              <a href="/level/1">Learn</a>
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
 
-          <div className="text-gray-500 font-bold">
-            <ul className="flex flex-row items-center gap-4">
-              <li>Welcome, {authStore.user?.displayName}!</li>
-              <li>
-                <RiAccountCircle2Line size={36} className="text-gray-500" />
-              </li>
-            </ul>
-          </div>
-        </>
+      {authenticated && (
+        <div className="text-gray-500 font-bold">
+          <ul className="flex flex-row items-center gap-4">
+            <li>Welcome, {authStore.user?.displayName}!</li>
+            <li>
+              <RiAccountCircle2Line size={36} className="text-gray-500" />
+            </li>
+          </ul>
+        </div>
       )}
 
       {!authenticated && (

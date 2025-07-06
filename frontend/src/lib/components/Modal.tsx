@@ -3,7 +3,11 @@ import React, { useEffect, useRef } from "react";
 export default function Modal({
   open,
   children,
-}: {
+  ...otherProps
+}: React.DetailedHTMLProps<
+  React.DialogHTMLAttributes<HTMLDialogElement>,
+  HTMLDialogElement
+> & {
   open: boolean;
   children: React.ReactNode;
 }) {
@@ -21,5 +25,9 @@ export default function Modal({
     }
   }, [ref, open]);
 
-  return <dialog ref={ref} className="p-4 rounded-[20px] m-auto">{children}</dialog>;
+  return (
+    <dialog ref={ref} className="p-4 rounded-[20px] m-auto border-1 border-accent backdrop:bg-black/30">
+      {children}
+    </dialog>
+  );
 }
