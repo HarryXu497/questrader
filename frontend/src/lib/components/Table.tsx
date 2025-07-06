@@ -108,7 +108,7 @@ function Table() {
   return (
     <>
       <style>{styles}</style>
-      <GridComponent dataSource={data} gridLines="Default" height="100%" rowHeight={32}>
+      <GridComponent dataSource={data} gridLines="Default" height="100%" rowHeight={28}>
         <ColumnsDirective>
           <ColumnDirective field="Company" width="200" textAlign="Left" />
           <ColumnDirective field="Ticker" width="200" textAlign="Left" />
